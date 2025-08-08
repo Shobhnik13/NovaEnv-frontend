@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { motion, useMotionValue, useTransform, animate } from "framer-motion"
+// motion and related hooks are no longer needed for the count
+// import { motion, useMotionValue, useTransform, animate } from "framer-motion" 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
@@ -18,13 +19,8 @@ export function AnimatedStat({
     sparkline?: React.ReactNode
     className?: string
 }) {
-    const count = useMotionValue(0)
-    const rounded = useTransform(count, (latest) => Math.round(latest).toLocaleString())
-
-    React.useEffect(() => {
-        const controls = animate(count, value, { duration: 0.8, ease: "easeOut" })
-        return controls.stop
-    }, [value, count])
+    // We no longer need the motion value, transform, or the useEffect for animation.
+    // The value is now displayed directly.
 
     return (
         <Card className={cn("relative overflow-hidden bg-card/60 border-border/60 hover:bg-card/80 transition-colors", className)}>
@@ -36,7 +32,10 @@ export function AnimatedStat({
             </CardHeader>
             <CardContent className="pt-1">
                 <div className="flex items-end justify-between">
-                    <motion.div className="text-2xl font-semibold tabular-nums">{rounded}</motion.div>
+                    {/* Display the value directly, wrapped in toLocaleString() for formatting */}
+                    <div className="text-2xl font-semibold tabular-nums">
+                        {value.toLocaleString()}
+                    </div>
                     <div className="ml-3 h-10 w-24 md:w-28">{sparkline}</div>
                 </div>
             </CardContent>

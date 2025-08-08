@@ -9,10 +9,10 @@ import { ConfirmDialog } from "@/components/confirm-dialog"
 import { AddProjectDialog } from "@/components/add-project-dialog"
 import { useData, type Project } from "@/components/data-provider"
 
-export function ProjectCard({ project }: { project: Project }) {
+export function ProjectCard({ project }: any) {
     const { deleteProject } = useData()
-    const envCount = project.environments.length
-    const varCount = project.environments.reduce((acc, e) => acc + e.variables.length, 0)
+    const envCount = project?.totalVariables
+    const varCount = project?.totalEnvironments
 
     return (
         <motion.div layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
