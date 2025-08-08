@@ -1,30 +1,76 @@
 "use client"
 
-import React from "react"
-import { useData, type Environment } from "@/components/data-provider"
+import React, { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@clerk/nextjs"
+import envConfig from "@/envConfig"
+import { Loader2 } from "lucide-react"
 
 export function AddEnvironmentDialog({
     children,
     projectId,
     env,
     mode = "create",
+    onCreated
 }: {
     children?: React.ReactNode
     projectId: string
-    env?: Environment
-    mode?: "create" | "edit"
+    env?: { id: string; name: string }
+    mode?: "create" | "edit",
+    onCreated?: () => void
 }) {
-    const [open, setOpen] = React.useState(false)
-    const { addEnvironment, updateEnvironment } = useData()
-    const [name, setName] = React.useState(env?.name ?? "")
+    const [open, setOpen] = useState(false)
+    const [name, setName] = useState(env?.name ?? "")
+    const [loading, setLoading] = useState(false)
+    const { getToken } = useAuth()
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (open && env) setName(env.name)
     }, [open, env])
+
+    const handleSubmit = async () => {
+        if (!name.trim()) return
+
+        setLoading(true)
+        try {
+            const token = await getToken()
+
+            const url =
+                mode === "edit"
+                    ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1/env/${env?.id}`
+                    : `${envConfig.enviornmentUrl}/projects/${projectId}/create-enviornment`
+
+            const method = mode === "edit" ? "PUT" : "POST"
+
+            const body =
+                mode === "edit"
+                    ? { name: name.trim() }
+                    : { name: name.trim() }
+
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(body),
+            })
+
+            if (!res.ok) {
+                throw new Error(`Failed to ${mode === "edit" ? "update" : "create"} environment`)
+            }
+            onCreated?.()
+            setOpen(false)
+            setName("")
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -38,23 +84,25 @@ export function AddEnvironmentDialog({
                 <div className="grid gap-3 py-2">
                     <div className="grid gap-2">
                         <Label htmlFor="env-name">Name</Label>
-                        <Input id="env-name" placeholder="Development" value={name} onChange={(e) => setName(e.target.value)} />
+                        <Input
+                            id="env-name"
+                            placeholder="Development"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            disabled={loading}
+                        />
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button
-                        onClick={() => {
-                            if (!name.trim()) return
-                            if (mode === "edit" && env) {
-                                updateEnvironment(projectId, env.id, { name: name.trim() })
-                            } else {
-                                addEnvironment(projectId, name.trim())
-                            }
-                            setOpen(false)
-                            setName("")
-                        }}
-                    >
-                        {mode === "edit" ? "Save" : "Create"}
+                    <Button onClick={handleSubmit} disabled={loading || !name.trim()}>
+                        {loading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                {mode === "edit" ? "Saving..." : "Creating..."}
+                            </>
+                        ) : (
+                            mode === "edit" ? "Save" : "Create"
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>

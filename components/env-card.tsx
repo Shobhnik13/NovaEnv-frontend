@@ -41,7 +41,7 @@ export function EnvCard({ env, projectId }: { env: Environment; projectId: strin
                 </CardHeader>
                 <CardContent className="pt-2">
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <span className="inline-flex items-center gap-1"><ListTree className="size-4" /> {env.variables.length} variables</span>
+                        {/* <span className="inline-flex items-center gap-1"><ListTree className="size-4" /> {env.variables.length} variables</span> */}
                     </div>
                 </CardContent>
             </Card>

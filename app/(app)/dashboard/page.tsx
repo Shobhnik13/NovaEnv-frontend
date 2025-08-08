@@ -32,16 +32,13 @@ export default function DashboardPage() {
         enviornments: 0,
         variables: 0,
     })
-    const [projects, setProjects] = useState<any>([])
-    useEffect(() => {
-        if (!isLoaded) return
-        if (isLoaded && !isSignedIn) redirect("/sign-in")
 
-        const fetchAll = async () => {
-            try {
-                const token = await getToken()
-
-                const requests = [
+    const fetchAll = async (silent = false) => {
+        try {
+            const token = await getToken()
+            let requests: any = []
+            if (silent === false) {
+                requests = [
                     fetch(`${envConfig.authUrl}/me`, {
                         method: "POST",
                         headers: {
@@ -69,24 +66,51 @@ export default function DashboardPage() {
                         },
                     }),
                 ]
+            } else {
+                requests = [
+                    // remove auth caall when silently refresh coz it will alrady synced
+                    fetch(`${envConfig.projectUrl}/projects`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`,
+                        },
+                    }),
 
-                const responses = await Promise.all(requests)
-                const data = await Promise.all(responses.map(r => r.json()))
+                    fetch(`${envConfig.projectUrl}/analytics`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`,
+                        },
+                    }),
+                ]
+            }
 
+
+            const responses = await Promise.all(requests)
+            const data = await Promise.all(responses.map(r => r.json()))
+
+
+            if (silent === false) {
                 if (data[0]) {
                     setProjects(data[1])
                     setAnalyticsData(data[2])
+                    setAllLoaded(true)
                 }
-
-                console.log(projects);
-                
-
-                setAllLoaded(true)
-            } catch (err) {
-                console.error("Error loading dashboard data", err)
+            } else {
+                setProjects(data[0])
+                setAnalyticsData(data[1])
             }
+        } catch (err) {
+            console.error("Error loading dashboard data", err)
         }
+    }
 
+    const [projects, setProjects] = useState<any>([])
+    useEffect(() => {
+        if (!isLoaded) return
+        if (isLoaded && !isSignedIn) redirect("/sign-in")
         fetchAll()
     }, [isLoaded, isSignedIn, user, getToken])
 
@@ -106,7 +130,7 @@ export default function DashboardPage() {
                     <h1 className="text-2xl font-semibold tracking-tight">Analytics</h1>
                     <p className="text-sm text-muted-foreground">Overview of your projects and secrets</p>
                 </div>
-                <AddProjectDialog>
+                <AddProjectDialog onCreated={() => fetchAll(true)}>
                     <Button className="gap-2" aria-label="Add Project">
                         <Plus className="size-4" />
                         Add Project
@@ -155,9 +179,9 @@ export default function DashboardPage() {
                                 <p className="text-sm text-muted-foreground">Manage your projects and secrets</p>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-3 3xl:grid-cols-4">
-                                {projects.length>0 && projects.map((p:any) => (
-                                        <ProjectCard key={p?.projectId} project={p} />
-                                    ))}
+                                {projects.length > 0 && projects.map((p: any) => (
+                                    <ProjectCard key={p?.projectId} project={p} />
+                                ))}
                             </div>
                         </div>
                     )}

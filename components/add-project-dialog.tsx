@@ -14,10 +14,12 @@ export function AddProjectDialog({
     children,
     project,
     mode = "create",
+    onCreated
 }: {
     children?: React.ReactNode
     project?: Project
-    mode?: "create" | "edit"
+    mode?: "create" | "edit",
+    onCreated?: ()=>void
 }) {
     const [open, setOpen] = useState(false)
     const { addProject, updateProject } = useData()
@@ -49,7 +51,7 @@ export function AddProjectDialog({
             })
 
             const data = await res.json()
-            console.log(data)
+            onCreated?.()
         } catch (err) {
             console.error(err)
         } finally {

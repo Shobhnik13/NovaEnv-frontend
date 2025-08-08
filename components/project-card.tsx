@@ -11,15 +11,15 @@ import { useData, type Project } from "@/components/data-provider"
 
 export function ProjectCard({ project }: any) {
     const { deleteProject } = useData()
-    const envCount = project?.totalVariables
-    const varCount = project?.totalEnvironments
+    const envCount = project?.totalEnvironments
+    const varCount = project?.totalVariables
 
     return (
         <motion.div layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
             <Card className="group bg-card/60 border-border/60 hover:bg-card/80 transition-colors">
                 <CardHeader className="pb-2">
                     <CardTitle className="flex items-center justify-between text-base">
-                        <Link href={`/projects/${project.id}`} className="hover:underline">
+                        <Link href={`/projects/${project.projectId}`} className="hover:underline">
                             {project.name}
                         </Link>
                         <div className="flex items-center gap-1.5">
@@ -41,7 +41,7 @@ export function ProjectCard({ project }: any) {
                             />
                         </div>
                     </CardTitle>
-                    <CardDescription className="line-clamp-2">{project.description || "—"}</CardDescription>
+                    <CardDescription className="line-clamp-2">{project.description || "-"} </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-2">
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">

@@ -1,34 +1,63 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { redirect, useParams, useRouter } from "next/navigation"
 import { useData } from "@/components/data-provider"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Plus } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus } from 'lucide-react'
 import { EnvCard } from "@/components/env-card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { motion, AnimatePresence } from "framer-motion"
 import { AddEnvironmentDialog } from "@/components/add-enviornment-dialog"
+import { useEffect, useState } from "react"
+import { useAuth, useUser } from "@clerk/nextjs"
+import envConfig from "@/envConfig"
 
 export default function ProjectPage() {
     const params = useParams<{ projectId: string }>()
     const router = useRouter()
-    const { loading, getProjectById } = useData()
-    const project = getProjectById(params.projectId)
+    const { getToken } = useAuth()
+    const { isSignedIn, user, isLoaded } = useUser()
+    const [allLoaded, setAllLoaded] = useState(false)
+    const [project, setProject] = useState<any>(null)
 
-    if (loading) {
-        return <div className="space-y-4">
-            <Skeleton className="h-9 w-48" />
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {Array.from({ length: 6 }).map((_, i) => (
-                    <Skeleton key={i} className="h-36 rounded-xl bg-zinc-900/50" />
-                ))}
+    const fetchProject = async (silent=false) => {
+        try {
+            const token = await getToken()
+            const res = await fetch(`${envConfig.projectUrl}/projects/${params.projectId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            })
+
+            const data = await res.json()
+            setProject(data)
+            setAllLoaded(true)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+        if (!isLoaded) return
+        if (isLoaded && !isSignedIn) redirect("/sign-in")
+        if (!params.projectId) {
+            router.push("/dashboard")
+        }
+        fetchProject()
+    }, [isLoaded, isSignedIn, params.projectId, getToken])
+
+    if (!allLoaded) {
+        return (
+            <div className="flex items-center justify-center min-h-screen ">
+                <Loader2 className="h-30 w-10 animate-spin text-gray-600" />
             </div>
-        </div>
+        )
     }
 
-    if (!project) {
+    if (!project || project === null) {
         return (
-            <div className="space-y-4">
+            <div className="space-y-4 mt-4">
                 <Button variant="ghost" onClick={() => router.back()} className="gap-2">
                     <ArrowLeft className="size-4" />
                     Back
@@ -41,13 +70,13 @@ export default function ProjectPage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 mt-4 ">
             <div className="flex items-center justify-between gap-3">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight">{project.name}</h1>
                     <p className="text-sm text-muted-foreground">{project.description || "Manage your environments"}</p>
                 </div>
-                <AddEnvironmentDialog projectId={project.id}>
+                <AddEnvironmentDialog projectId={project.projectId} onCreated = {()=>fetchProject(true)}>
                     <Button className="gap-2">
                         <Plus className="size-4" />
                         Add Environment
@@ -56,7 +85,7 @@ export default function ProjectPage() {
             </div>
 
             <AnimatePresence mode="popLayout">
-                {project.environments.length === 0 ? (
+                {project.envs.length === 0 ? (
                     <motion.div
                         key="empty"
                         initial={{ opacity: 0, y: 8 }}
@@ -74,8 +103,8 @@ export default function ProjectPage() {
                         exit={{ opacity: 0 }}
                         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
                     >
-                        {project.environments.map((e) => (
-                            <EnvCard key={e.id} projectId={project.id} env={e} />
+                        {project.envs.map((e: any) => (
+                            <EnvCard key={e.name} projectId={project.projectId} env={e} />
                         ))}
                     </motion.div>
                 )}
