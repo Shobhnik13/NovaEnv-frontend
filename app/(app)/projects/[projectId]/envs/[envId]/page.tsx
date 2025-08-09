@@ -18,7 +18,7 @@ export default function EnvironmentPage() {
     const [allLoaded, setAllLoaded] = useState(false)
     const [data, setData] = useState<any>()
 
-    const fetchEnviornment = async () => {
+    const fetchEnviornment = async (silent=false) => {
         try {
             const token = await getToken()
             const res = await fetch(`${envConfig.enviornmentUrl}/projects/${params.projectId}/variables/${params.envId}`, {
@@ -30,9 +30,11 @@ export default function EnvironmentPage() {
             })
             const data = await res.json()
             setData(data)
-            setAllLoaded(true)
+            if(silent === false) setAllLoaded(true)
         } catch (error) {
             console.log(error);
+        }finally{
+            setAllLoaded(true)
         }
     }
     useEffect(() => {
@@ -60,7 +62,7 @@ export default function EnvironmentPage() {
                 <h1 className="text-2xl font-semibold tracking-tight"> Enviornment: {data?.name}</h1>
                 <p className="text-sm text-muted-foreground">Manage variables for this environment</p>
             </div>
-            <VariableTable projectId={params.projectId} vars={data.variables} envId={params.envId} />
+            <VariableTable onaddCallback={()=>fetchEnviornment(true)} key={params.envId} projectId={params.projectId} vars={data.variables} envId={params.envId} />
         </div>
     )
 }
