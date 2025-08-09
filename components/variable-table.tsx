@@ -1,7 +1,6 @@
 "use client"
 
-import React from "react"
-import { useData } from "@/components/data-provider"
+import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,20 +9,45 @@ import { Eye, EyeOff, Pencil, Plus, Trash2 } from 'lucide-react'
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { motion, AnimatePresence } from "framer-motion"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { useAuth } from "@clerk/nextjs"
+import envConfig from "@/envConfig"
 
-export function VariableTable({ projectId, envId }: { projectId: string; envId: string }) {
-    const { getProjectById, addVariable, updateVariable, deleteVariable } = useData()
-    const env = getProjectById(projectId)?.environments.find((e) => e.id === envId)
-    const [showValues, setShowValues] = React.useState(false)
+export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteVariable, projectId, envId }: any) {
+    const [showValues, setShowValues] = useState(false)
+    const { getToken } = useAuth()
+    const addVariable = async (projectId: any, envId: any, data: any) => {
+        if (!data.name.trim() || !data.value.trim()) return
 
-    if (!env) return null
+        try {
+            const token = await getToken()
+            const name = data.name.trim()
+            const value = data.value.trim()
+            const res = await fetch(`${envConfig.variableUrl}/project/${projectId}/create-variable/${envId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ key: name, value: value }),
+            })
+            const ans = await res.json()
 
+        } catch (err) {
+            console.error(err)
+        } finally {
+            // setLoading(false)
+        }
+    }
     return (
         <Card className="p-0 overflow-hidden border-border/60 bg-card/60">
             <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-border/60">
-                <div className="text-sm text-muted-foreground">{env.variables.length} variables</div>
+                <div className="text-sm text-muted-foreground">{vars.length} variables</div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setShowValues((s) => !s)} aria-label={showValues ? "Hide values" : "Show values"}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowValues(s => !s)}
+                    >
                         {showValues ? <EyeOff className="size-4 mr-1" /> : <Eye className="size-4 mr-1" />}
                         {showValues ? "Hide values" : "Show values"}
                     </Button>
@@ -41,13 +65,13 @@ export function VariableTable({ projectId, envId }: { projectId: string; envId: 
 
             <div className="divide-y divide-border/60">
                 <div className="grid grid-cols-[1fr_1fr_auto] gap-3 px-4 py-2 text-xs text-muted-foreground">
-                    <span>Name</span>
-                    <span>Value</span>
+                    <span>Key</span>
+                    <span className="">Value</span>
                     <span className="sr-only">Actions</span>
                 </div>
 
                 <AnimatePresence initial={false}>
-                    {env.variables.length === 0 ? (
+                    {vars.length === 0 ? (
                         <motion.div
                             key="empty"
                             initial={{ opacity: 0 }}
@@ -55,10 +79,10 @@ export function VariableTable({ projectId, envId }: { projectId: string; envId: 
                             exit={{ opacity: 0 }}
                             className="px-4 py-10 text-center text-muted-foreground"
                         >
-                            No variables yet
+                            No variables exist for this environment
                         </motion.div>
                     ) : (
-                        env.variables.map((v) => (
+                        vars.map((v: any) => (
                             <motion.div
                                 key={v.id}
                                 layout
@@ -67,7 +91,7 @@ export function VariableTable({ projectId, envId }: { projectId: string; envId: 
                                 exit={{ opacity: 0, y: -6 }}
                                 className="grid grid-cols-[1fr_1fr_auto] items-center gap-3 px-4 py-3"
                             >
-                                <code className="text-sm">{v.name}</code>
+                                <code className="text-sm">{v.key}</code>
                                 <div className="text-sm font-mono text-zinc-300">
                                     {showValues ? v.value : "••••••••"}
                                 </div>
@@ -75,18 +99,18 @@ export function VariableTable({ projectId, envId }: { projectId: string; envId: 
                                     <EditVariableDialog
                                         defaultName={v.name}
                                         defaultValue={v.value}
-                                        onSubmit={(data) => updateVariable(projectId, envId, v.id, { name: data.name, value: data.value })}
+                                        onSubmit={(data: any) => onUpdateVariable(v.id, data)}
                                     >
-                                        <Button variant="ghost" size="icon" aria-label="Edit Variable">
+                                        <Button variant="ghost" size="icon">
                                             <Pencil className="size-4" />
                                         </Button>
                                     </EditVariableDialog>
                                     <ConfirmDialog
                                         title="Delete variable"
                                         description={`Remove ${v.name}?`}
-                                        onConfirm={() => deleteVariable(projectId, envId, v.id)}
+                                        onConfirm={() => onDeleteVariable(v.id)}
                                         trigger={
-                                            <Button variant="ghost" size="icon" className="text-destructive" aria-label="Delete Variable">
+                                            <Button variant="ghost" size="icon" className="text-destructive">
                                                 <Trash2 className="size-4" />
                                             </Button>
                                         }
@@ -121,7 +145,7 @@ function AddVariableDialog({
                 </DialogHeader>
                 <div className="grid gap-3 py-2">
                     <div className="grid gap-2">
-                        <Label htmlFor="var-name">Name</Label>
+                        <Label htmlFor="var-name">Key</Label>
                         <Input id="var-name" placeholder="API_URL" value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
                     <div className="grid gap-2">
@@ -147,22 +171,12 @@ function AddVariableDialog({
     )
 }
 
-function EditVariableDialog({
-    children,
-    defaultName,
-    defaultValue,
-    onSubmit,
-}: {
-    children: React.ReactNode
-    defaultName: string
-    defaultValue: string
-    onSubmit: (data: { name: string; value: string }) => void
-}) {
-    const [open, setOpen] = React.useState(false)
-    const [name, setName] = React.useState(defaultName)
-    const [value, setValue] = React.useState(defaultValue)
+function EditVariableDialog({ children, defaultName, defaultValue, onSubmit }: any) {
+    const [open, setOpen] = useState(false)
+    const [name, setName] = useState(defaultName)
+    const [value, setValue] = useState(defaultValue)
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (open) {
             setName(defaultName)
             setValue(defaultValue)
@@ -172,18 +186,18 @@ function EditVariableDialog({
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Edit Variable</DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-3 py-2">
                     <div className="grid gap-2">
-                        <Label htmlFor="edit-name">Name</Label>
-                        <Input id="edit-name" value={name} onChange={(e) => setName(e.target.value)} />
+                        <Label>Name</Label>
+                        <Input value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="edit-value">Value</Label>
-                        <Input id="edit-value" value={value} onChange={(e) => setValue(e.target.value)} />
+                        <Label>Value</Label>
+                        <Input value={value} onChange={(e) => setValue(e.target.value)} />
                     </div>
                 </div>
                 <DialogFooter>
