@@ -9,14 +9,14 @@ import { ConfirmDialog } from "@/components/confirm-dialog"
 import { useData, type Environment } from "@/components/data-provider"
 import { AddEnvironmentDialog } from "./add-enviornment-dialog"
 
-export function EnvCard({ env, projectId }: { env: Environment; projectId: string }) {
+export function EnvCard({ env, projectId }: { env: any; projectId: string }) {
     const { deleteEnvironment } = useData()
     return (
         <motion.div layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
             <Card className="group bg-card/60 border-border/60 hover:bg-card/80 transition-colors">
                 <CardHeader className="pb-2">
                     <CardTitle className="flex items-center justify-between text-base">
-                        <Link href={`/projects/${projectId}/envs/${env.id}`} className="hover:underline">
+                        <Link href={`/projects/${projectId}/envs/${env.enviornmentId}`} className="hover:underline">
                             {env.name}
                         </Link>
                         <div className="flex items-center gap-1.5">
