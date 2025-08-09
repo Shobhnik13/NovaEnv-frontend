@@ -73,7 +73,7 @@ export default function ProjectPage() {
         <div className="space-y-6 mt-4 ">
             <div className="flex items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">{project.name}</h1>
+                    <h1 className="text-2xl font-semibold tracking-tight">Project: {project.name}</h1>
                     <p className="text-sm text-muted-foreground">{project.description || "Manage your environments"}</p>
                 </div>
                 <AddEnvironmentDialog projectId={project.projectId} onCreated = {()=>fetchProject(true)}>
