@@ -5,19 +5,22 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { motion, AnimatePresence } from "framer-motion"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { useAuth } from "@clerk/nextjs"
 import envConfig from "@/envConfig"
 
-export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteVariable, projectId, envId }: any) {
+export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteVariable, projectId, envId, onaddCallback }: any) {
     const [showValues, setShowValues] = useState(false)
     const { getToken } = useAuth()
+    const [loading, setLoading] = useState(false)
+    const [dialogOpen, setDialogOpen] = useState(false)
+
     const addVariable = async (projectId: any, envId: any, data: any) => {
         if (!data.name.trim() || !data.value.trim()) return
-
+        setLoading(true)
         try {
             const token = await getToken()
             const name = data.name.trim()
@@ -31,11 +34,13 @@ export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteV
                 body: JSON.stringify({ key: name, value: value }),
             })
             const ans = await res.json()
-
+            onaddCallback()
+            setLoading(false)
+            setDialogOpen(false)
         } catch (err) {
             console.error(err)
         } finally {
-            // setLoading(false)
+            setLoading(false)
         }
     }
     return (
@@ -52,11 +57,14 @@ export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteV
                         {showValues ? "Hide values" : "Show values"}
                     </Button>
                     <AddVariableDialog
+                        open={dialogOpen}
+                        setOpen={setDialogOpen}
+                        loading={loading}
                         onSubmit={(data) => addVariable(projectId, envId, data)}
                         trigger={
-                            <Button size="sm" className="gap-2" aria-label="Add Variable">
+                            <Button disabled={loading} size="sm" className="gap-2" aria-label="Add Variable">
                                 <Plus className="size-4" />
-                                Add Variable
+                                {loading ? "Adding..." : "Add Variable"}
                             </Button>
                         }
                     />
@@ -73,7 +81,7 @@ export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteV
                 <AnimatePresence initial={false}>
                     {vars.length === 0 ? (
                         <motion.div
-                            key="empty"
+                            key=""
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -82,9 +90,9 @@ export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteV
                             No variables exist for this environment
                         </motion.div>
                     ) : (
-                        vars.map((v: any) => (
+                        vars.map((v: any, index:number) => (
                             <motion.div
-                                key={v.id}
+                                key={`var-${index}`}
                                 layout
                                 initial={{ opacity: 0, y: 6 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -97,7 +105,7 @@ export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteV
                                 </div>
                                 <div className="flex items-center justify-end gap-1.5">
                                     <EditVariableDialog
-                                        defaultName={v.name}
+                                        defaultName={v.key}
                                         defaultValue={v.value}
                                         onSubmit={(data: any) => onUpdateVariable(v.id, data)}
                                     >
@@ -128,13 +136,25 @@ export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteV
 function AddVariableDialog({
     trigger,
     onSubmit,
+    open,
+    setOpen,
+    loading,
 }: {
     trigger: React.ReactNode
     onSubmit: (data: { name: string; value: string }) => void
+    open: boolean
+    setOpen: (open: boolean) => void
+    loading: boolean
 }) {
-    const [open, setOpen] = React.useState(false)
     const [name, setName] = React.useState("")
     const [value, setValue] = React.useState("")
+
+    useEffect(() => {
+        if (!open) {
+            setName("")
+            setValue("")
+        }
+    }, [open])
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -146,11 +166,23 @@ function AddVariableDialog({
                 <div className="grid gap-3 py-2">
                     <div className="grid gap-2">
                         <Label htmlFor="var-name">Key</Label>
-                        <Input id="var-name" placeholder="API_URL" value={name} onChange={(e) => setName(e.target.value)} />
+                        <Input
+                            id="var-name"
+                            placeholder="API_URL"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            disabled={loading}
+                        />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="var-value">Value</Label>
-                        <Input id="var-value" placeholder="https://api.example.com" value={value} onChange={(e) => setValue(e.target.value)} />
+                        <Input
+                            id="var-value"
+                            placeholder="https://api.example.com"
+                            value={value}
+                            onChange={(e) => setValue(e.target.value)}
+                            disabled={loading}
+                        />
                     </div>
                 </div>
                 <DialogFooter>
@@ -158,12 +190,17 @@ function AddVariableDialog({
                         onClick={() => {
                             if (!name.trim()) return
                             onSubmit({ name: name.trim(), value })
-                            setOpen(false)
-                            setName("")
-                            setValue("")
                         }}
+                        disabled={loading}
                     >
-                        Add
+                        {loading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                {"Adding..."}
+                            </>
+                        ) : (
+                            "Add"
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>
