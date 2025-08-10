@@ -16,7 +16,7 @@ import {
     SidebarSeparator,
     SidebarRail,
 } from "@/components/ui/sidebar"
-import { Home, LogOut } from 'lucide-react'
+import { Home, Key, LogOut } from 'lucide-react'
 import { ConfirmDialog } from "@/components/confirm-dialog"
 
 export function AppSidebar() {
@@ -40,11 +40,17 @@ export function AppSidebar() {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            <SidebarMenuItem>
+                            <SidebarMenuItem className="flex flex-col gap-y-">
                                 <SidebarMenuButton asChild isActive={pathname.startsWith("/dashboard")}>
                                     <Link href="/dashboard" aria-label="Dashboard">
                                         <Home />
                                         <span>Dashboard</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith("/api-key")}>
+                                    <Link href="/api-key" aria-label="API Key">
+                                        <Key />
+                                        <span>API Key</span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

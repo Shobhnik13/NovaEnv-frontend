@@ -180,7 +180,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="grid gap-3 sm:grid-cols-3 3xl:grid-cols-4">
                                 {projects.length > 0 && projects.map((p: any) => (
-                                    <ProjectCard key={p?.projectId} project={p} />
+                                    <ProjectCard key={p?.projectId} project={p} onEdited={() => fetchAll(true)} />
                                 ))}
                             </div>
                         </div>
