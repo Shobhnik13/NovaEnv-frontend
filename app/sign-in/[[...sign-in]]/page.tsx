@@ -22,5 +22,5 @@ export default function Page() {
         }
         checkProtect()
     }, [isLoaded, isSignedIn])
-    return <SignIn />
+    return <SignIn afterSignOutUrl={'/'} fallbackRedirectUrl={'/dashboard'} />
 }
