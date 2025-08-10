@@ -14,12 +14,14 @@ export function AddProjectDialog({
     children,
     project,
     mode = "create",
-    onCreated
+    onCreated,
+    onEdited
 }: {
     children?: React.ReactNode
-    project?: Project
+    project?: any
     mode?: "create" | "edit",
-    onCreated?: ()=>void
+    onCreated?: () => void,
+    onEdited?: () => void
 }) {
     const [open, setOpen] = useState(false)
     const { addProject, updateProject } = useData()
@@ -51,6 +53,9 @@ export function AddProjectDialog({
             })
 
             const data = await res.json()
+            setOpen(false)
+            setName("")
+            setDesc("")
             onCreated?.()
         } catch (err) {
             console.error(err)
@@ -59,6 +64,32 @@ export function AddProjectDialog({
         }
     }
 
+    const handleEdit = async (name: string, description: string, projectId: any) => {
+        setLoading(true)
+        try {
+            const token = await getToken()
+            if (!token) return
+
+            const res = await fetch(`${envConfig.projectUrl}/projects/${projectId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ name, description }),
+            })
+
+            const data = await res.json()
+            setOpen(false)
+            setName("")
+            setDesc("")
+            onEdited?.()
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setLoading(false)
+        }
+    }
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -96,15 +127,10 @@ export function AddProjectDialog({
                         onClick={() => {
                             if (!name.trim()) return
                             if (mode === "edit" && project) {
-                                setLoading(true)
-                                updateProject(project.id, { name: name.trim(), description: desc })
-                                setLoading(false)
+                                handleEdit(name.trim(), desc.trim(), project?.projectId)
                             } else {
                                 handleSubmit(name.trim(), desc)
                             }
-                            setOpen(false)
-                            setName("")
-                            setDesc("")
                         }}
                     >
                         {loading ? (
