@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Copy, RotateCcw, AlertTriangle, Check } from "lucide-react"
 import { motion } from "framer-motion"
-
+ 
 export default function ApiKeyPage() {
     const [apiKey, setApiKey] = React.useState("nv_sk_1234567890abcdef1234567890abcdef12345678")
     const [isRegenerating, setIsRegenerating] = React.useState(false)
