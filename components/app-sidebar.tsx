@@ -16,13 +16,27 @@ import {
     SidebarSeparator,
     SidebarRail,
 } from "@/components/ui/sidebar"
-import { Home, Key, LogOut } from 'lucide-react'
+import { Home, Key, Loader2, LogOut } from 'lucide-react'
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { useClerk } from "@clerk/nextjs"
+import { useState } from "react"
 
 export function AppSidebar() {
     const pathname = usePathname()
     const router = useRouter()
-
+    const { signOut } = useClerk()
+    const [loading, setLoading] = useState(false)
+    const handleLogout = async () => {
+        try {
+            setLoading(true)
+            await signOut()
+            setLoading(false)
+        } catch (error) {
+            console.log("Logout error", error);
+        } finally {
+            setLoading(false)
+        }
+    }
     return (
         <Sidebar collapsible="offcanvas" variant="sidebar">
             <SidebarHeader>
@@ -64,16 +78,15 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <ConfirmDialog
                             title="Sign out"
-                            description="Are you sure you want to sign out? Local demo data will remain on this device."
-                            onConfirm={() => {
-                                // Simulate logout: navigate home; optional data clear handled elsewhere if needed
-                                router.push("/")
-                            }}
+                            loading={loading}
+                            description="Are you sure you want to sign out? "
+                            onConfirm={() => handleLogout()}
                             trigger={
                                 <SidebarMenuButton aria-label="Logout" tooltip="Logout" asChild>
-                                    <button type="button">
+                                    <button type="button" disabled={loading}>
                                         <LogOut />
-                                        <span>Logout</span>
+                                        <span>  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                                            {loading ? "Loging out..." : "Log out"}</span>
                                     </button>
                                 </SidebarMenuButton>
                             }
