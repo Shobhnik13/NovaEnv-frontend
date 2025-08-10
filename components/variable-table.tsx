@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { useAuth } from "@clerk/nextjs"
 import envConfig from "@/envConfig"
+import { getAuth } from "@clerk/nextjs/server"
 
 export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteVariable, projectId, envId, onaddCallback }: any) {
     const [showValues, setShowValues] = useState(false)
@@ -33,8 +34,9 @@ export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteV
                 },
                 body: JSON.stringify({ key: name, value: value }),
             })
-            const ans = await res.json()
-            onaddCallback()
+            if (res.ok) {
+                onaddCallback()
+            }
             setLoading(false)
             setDialogOpen(false)
         } catch (err) {
@@ -43,6 +45,30 @@ export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteV
             setLoading(false)
         }
     }
+
+    const deleteVariable = async (varId: string) => {
+        setLoading(true)
+        try {
+            const token = await getToken()
+            const res = await fetch(`${envConfig.variableUrl}/projects/${envId}/variable/${varId}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            if (res.ok) {
+                onaddCallback()
+            }
+            setLoading(false)
+            setDialogOpen(false)
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return (
         <Card className="p-0 overflow-hidden border-border/60 bg-card/60">
             <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-border/60">
@@ -90,7 +116,7 @@ export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteV
                             No variables exist for this environment
                         </motion.div>
                     ) : (
-                        vars.map((v: any, index:number) => (
+                        vars.map((v: any, index: number) => (
                             <motion.div
                                 key={`var-${index}`}
                                 layout
@@ -107,7 +133,9 @@ export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteV
                                     <EditVariableDialog
                                         defaultName={v.key}
                                         defaultValue={v.value}
-                                        onSubmit={(data: any) => onUpdateVariable(v.id, data)}
+                                        varId={v.variableId}
+                                        envId={envId}
+                                        onaddCallback={onaddCallback}
                                     >
                                         <Button variant="ghost" size="icon">
                                             <Pencil className="size-4" />
@@ -115,8 +143,8 @@ export function VariableTable({ vars, onAddVariable, onUpdateVariable, onDeleteV
                                     </EditVariableDialog>
                                     <ConfirmDialog
                                         title="Delete variable"
-                                        description={`Remove ${v.name}?`}
-                                        onConfirm={() => onDeleteVariable(v.id)}
+                                        description={`Remove variable`}
+                                        onConfirm={() => deleteVariable(v.variableId)}
                                         trigger={
                                             <Button variant="ghost" size="icon" className="text-destructive">
                                                 <Trash2 className="size-4" />
@@ -208,7 +236,7 @@ function AddVariableDialog({
     )
 }
 
-function EditVariableDialog({ children, defaultName, defaultValue, onSubmit }: any) {
+function EditVariableDialog({ children, defaultName, defaultValue, onSubmit, varId, envId, onaddCallback }: any) {
     const [open, setOpen] = useState(false)
     const [name, setName] = useState(defaultName)
     const [value, setValue] = useState(defaultValue)
@@ -220,6 +248,36 @@ function EditVariableDialog({ children, defaultName, defaultValue, onSubmit }: a
         }
     }, [open, defaultName, defaultValue])
 
+    const [loading, setLoading] = useState(false)
+    const { getToken } = useAuth()
+    const handleEdit = async (key: string, value: string) => {
+        setLoading(true)
+        try {
+            if (!key.trim() || !value.trim()) {
+                return
+            }
+            const token = await getToken()
+            if (!token) return
+
+            const res = await fetch(`${envConfig.variableUrl}/projects/${envId}/variable/${varId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ key, value }),
+            })
+
+            if (res.ok) {
+                onaddCallback()
+            }
+            setOpen(false)
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setLoading(false)
+        }
+    }
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
@@ -230,22 +288,26 @@ function EditVariableDialog({ children, defaultName, defaultValue, onSubmit }: a
                 <div className="grid gap-3 py-2">
                     <div className="grid gap-2">
                         <Label>Name</Label>
-                        <Input value={name} onChange={(e) => setName(e.target.value)} />
+                        <Input disabled={loading} value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
                     <div className="grid gap-2">
                         <Label>Value</Label>
-                        <Input value={value} onChange={(e) => setValue(e.target.value)} />
+                        <Input disabled={loading} value={value} onChange={(e) => setValue(e.target.value)} />
                     </div>
                 </div>
                 <DialogFooter>
                     <Button
-                        onClick={() => {
-                            if (!name.trim()) return
-                            onSubmit({ name: name.trim(), value })
-                            setOpen(false)
-                        }}
+                        onClick={() => handleEdit(name, value)}
+                        disabled={loading}
                     >
-                        Save
+                        {loading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Saving...
+                            </>
+                        ) : (
+                            "Save"
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>
