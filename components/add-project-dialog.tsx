@@ -130,7 +130,7 @@ export function AddProjectDialog({
                                 handleEdit(name.trim(), desc.trim(), project?.projectId)
                             } else {
                                 handleSubmit(name.trim(), desc)
-                            }
+                            } 
                         }}
                     >
                         {loading ? (
