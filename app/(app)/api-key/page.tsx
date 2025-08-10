@@ -1,18 +1,35 @@
 "use client"
 
-import * as React from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Copy, RotateCcw, AlertTriangle, Check } from "lucide-react"
+import { Copy, RotateCcw, AlertTriangle, Check, Loader2 } from "lucide-react"
 import { motion } from "framer-motion"
- 
+import { useEffect, useState } from "react"
+import { useAuth, useUser } from "@clerk/nextjs"
+import { redirect } from "next/navigation"
+import envConfig from "@/envConfig"
+
 export default function ApiKeyPage() {
-    const [apiKey, setApiKey] = React.useState("nv_sk_1234567890abcdef1234567890abcdef12345678")
-    const [isRegenerating, setIsRegenerating] = React.useState(false)
-    const [isCopying, setIsCopying] = React.useState(false)
-    const [isCopied, setIsCopied] = React.useState(false)
+    const [apiKey, setApiKey] = useState("")
+    const [isRegenerating, setIsRegenerating] = useState(false)
+    const [isCopying, setIsCopying] = useState(false)
+    const [isCopied, setIsCopied] = useState(false)
+    const [loading, setLoading] = useState(false)
+    function maskApiKey(key: string) {
+        if (!key) return "";
+        if (key.length <= 8) return key;
+
+        const visibleChars = 4;
+        const start = key.slice(0, visibleChars);
+        const end = key.slice(-visibleChars);
+        const masked = "•".repeat(key.length - visibleChars * 2);
+        return `${start}${masked}${end}`;
+    }
+
+    const { isSignedIn, user, isLoaded } = useUser()
+    const { getToken } = useAuth()
 
     const handleCopy = async () => {
         try {
@@ -30,16 +47,63 @@ export default function ApiKeyPage() {
 
     const handleRegenerate = async () => {
         setIsRegenerating(true)
+        try {
+            const token = await getToken()
+            if (!token) return
 
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 1500))
+            const res = await fetch(`${envConfig.authUrl}/regenerate-api-key`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            })
 
-        // Generate new mock API key
-        const newKey = `nv_sk_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
-        setApiKey(newKey)
-        setIsRegenerating(false)
-
+            const data = await res.json()
+            setApiKey(data?.apiKey)
+            setIsRegenerating(false)
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setIsRegenerating(false)
+        }
     }
+
+    const fetchKey = async () => {
+        try {
+            const token = await getToken()
+            if (!token) return
+
+            const res = await fetch(`${envConfig.authUrl}/api-key`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            const data = await res.json()
+            setApiKey(data?.apiKey)
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen ">
+                <Loader2 className="h-30 w-10 animate-spin text-gray-600" />
+            </div>
+        )
+    }
+
+    useEffect(() => {
+        if (!isLoaded) return
+        if (isLoaded && !isSignedIn) redirect("/sign-in")
+        fetchKey()
+    }, [isLoaded, isSignedIn, user, getToken])
 
     return (
         <div className="space-y-6 mt-2">
@@ -74,7 +138,7 @@ export default function ApiKeyPage() {
                 <Card className="bg-card/60 border-border/60">
                     <CardHeader>
                         <CardTitle className="text-lg">Your API Key</CardTitle>
-                        <CardDescription>Use this key to authenticate CLI operations and API requests.</CardDescription>
+                        <CardDescription>Use this key to authenticate CLI operations.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
@@ -82,7 +146,7 @@ export default function ApiKeyPage() {
                             <div className="flex gap-2">
                                 <Input
                                     id="api-key"
-                                    value={apiKey}
+                                    value={maskApiKey(apiKey)}
                                     readOnly
                                     className="font-mono text-sm bg-muted/50 cursor-default select-all"
                                     style={{ pointerEvents: "none", userSelect: "all" }}
@@ -109,7 +173,7 @@ export default function ApiKeyPage() {
                     </CardContent>
                 </Card>
             </motion.div>
-            
+
         </div>
     )
 }
