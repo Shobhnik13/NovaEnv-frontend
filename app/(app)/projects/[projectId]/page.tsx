@@ -104,7 +104,7 @@ export default function ProjectPage() {
                         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
                     >
                         {project.envs.map((e: any) => (
-                            <EnvCard key={e.name} projectId={project.projectId} env={e} />
+                            <EnvCard key={e.name} projectId={project.projectId} env={e} onCreated = {()=>fetchProject(true)} />
                         ))}
                     </motion.div>
                 )}
