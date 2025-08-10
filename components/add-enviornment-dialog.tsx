@@ -18,7 +18,7 @@ export function AddEnvironmentDialog({
 }: {
     children?: React.ReactNode
     projectId: string
-    env?: { id: string; name: string }
+    env?: any,
     mode?: "create" | "edit",
     onCreated?: () => void
 }) {
@@ -40,7 +40,7 @@ export function AddEnvironmentDialog({
 
             const url =
                 mode === "edit"
-                    ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1/env/${env?.id}`
+                    ? `${envConfig.enviornmentUrl}/projects/enviornments/${env.enviornmentId}`
                     : `${envConfig.enviornmentUrl}/projects/${projectId}/create-enviornment`
 
             const method = mode === "edit" ? "PUT" : "POST"
@@ -72,6 +72,7 @@ export function AddEnvironmentDialog({
         }
     }
 
+    
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -94,7 +95,7 @@ export function AddEnvironmentDialog({
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button onClick={handleSubmit} disabled={loading || !name.trim()}>
+                    <Button onClick={() => handleSubmit()} disabled={loading || !name.trim()}>
                         {loading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
