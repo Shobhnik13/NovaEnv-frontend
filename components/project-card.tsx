@@ -23,7 +23,7 @@ export function ProjectCard({ project, onEdited }: any) {
       const token = await getToken()
       if (!token) return
 
-      await fetch(`${envConfig.projectUrl}/projects/${projectId}`, {
+      const res = await fetch(`${envConfig.projectUrl}/projects/${projectId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -31,7 +31,9 @@ export function ProjectCard({ project, onEdited }: any) {
         },
       })
 
-      onEdited?.()
+      if(res?.ok){
+          onEdited?.()
+      }
     } catch (err) {
       console.error(err)
     } finally {
