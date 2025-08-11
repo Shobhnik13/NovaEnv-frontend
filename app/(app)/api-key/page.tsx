@@ -10,6 +10,7 @@ import { useEffect, useState } from "react"
 import { useAuth, useUser } from "@clerk/nextjs"
 import { redirect } from "next/navigation"
 import envConfig from "@/envConfig"
+import { toast } from "sonner"
 
 export default function ApiKeyPage() {
     const [apiKey, setApiKey] = useState("")
@@ -60,9 +61,15 @@ export default function ApiKeyPage() {
             })
 
             const data = await res.json()
-            setApiKey(data?.apiKey)
             setIsRegenerating(false)
+            if (res.status === 200) {
+                setApiKey(data?.apiKey)
+                toast.success('API KEY regenerated successfully')
+            } else {
+                toast.error(`${data?.error || data?.message}`)
+            }
         } catch (err) {
+            toast.error(`${err}`)
             console.error(err)
         } finally {
             setIsRegenerating(false)
@@ -91,7 +98,11 @@ export default function ApiKeyPage() {
         }
     }
 
-    if (loading) {
+    useEffect(() => {
+        fetchKey()
+    }, [user, getToken])
+
+    if (loading || !isLoaded) {
         return (
             <div className="flex items-center justify-center min-h-screen ">
                 <Loader2 className="h-30 w-10 animate-spin text-gray-600" />
@@ -99,11 +110,7 @@ export default function ApiKeyPage() {
         )
     }
 
-    useEffect(() => {
-        if (!isLoaded) return
-        if (isLoaded && !isSignedIn) redirect("/sign-in")
-        fetchKey()
-    }, [isLoaded, isSignedIn, user, getToken])
+
 
     return (
         <div className="space-y-6 mt-2">

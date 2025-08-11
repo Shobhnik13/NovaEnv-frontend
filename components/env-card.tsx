@@ -6,11 +6,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button"
 import { Edit, Trash2, ListTree } from 'lucide-react'
 import { ConfirmDialog } from "@/components/confirm-dialog"
-import { useData, type Environment } from "@/components/data-provider"
 import { AddEnvironmentDialog } from "./add-enviornment-dialog"
 import envConfig from "@/envConfig"
 import { useAuth } from "@clerk/nextjs"
 import { useState } from "react"
+import { toast } from "sonner"
 
 export function EnvCard({ env, projectId, onCreated }: { env: any; projectId: string, onCreated?: () => void }) {
     const { getToken } = useAuth()
@@ -29,9 +29,13 @@ export function EnvCard({ env, projectId, onCreated }: { env: any; projectId: st
                     Authorization: `Bearer ${token}`,
                 },
             })
-            if (res?.ok) {
-                onCreated?.()
+            const data = await res.json()
+            if (res.status === 200) {
+                toast.success(`${data?.message}`)
+            } else {
+                toast.error(`${data?.error || data?.message}`)
             }
+            onCreated?.()
         } catch (err) {
             console.error(err)
         } finally {

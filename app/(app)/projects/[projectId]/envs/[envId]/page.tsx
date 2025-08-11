@@ -1,7 +1,6 @@
 "use client"
 
 import { redirect, useParams, useRouter } from "next/navigation"
-import { useData } from "@/components/data-provider"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { VariableTable } from "@/components/variable-table"
@@ -18,7 +17,23 @@ export default function EnvironmentPage() {
     const [allLoaded, setAllLoaded] = useState(false)
     const [data, setData] = useState<any>()
 
-    const fetchEnviornment = async (silent=false) => {
+    useEffect(() => {
+        const checkProtect = () => {
+            if (!isLoaded) {
+                return (
+                    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+                        <Loader2 className="h-30 w-10 animate-spin text-gray-600" />
+                    </div>
+                )
+            }
+            if (isLoaded && !isSignedIn) {
+                redirect("/sign-in")
+            }
+        }
+        checkProtect()
+    }, [isLoaded, isSignedIn])
+
+    const fetchEnviornment = async (silent = false) => {
         try {
             const token = await getToken()
             const res = await fetch(`${envConfig.enviornmentUrl}/projects/${params.projectId}/variables/${params.envId}`, {
@@ -30,25 +45,23 @@ export default function EnvironmentPage() {
             })
             const data = await res.json()
             setData(data)
-            if(silent === false) setAllLoaded(true)
+            if (silent === false) setAllLoaded(true)
         } catch (error) {
             console.log(error);
-        }finally{
+        } finally {
             setAllLoaded(true)
         }
     }
     useEffect(() => {
-        if (!isLoaded) return
-        if (isLoaded && !isSignedIn) redirect("/sign-in")
         if (!params.envId) {
             router.push("/dashboard")
         }
         fetchEnviornment()
-    }, [isLoaded, isSignedIn, params.projectId, getToken])
+    }, [params.projectId, getToken])
 
 
 
-    if (!allLoaded) {
+    if (!allLoaded || !isLoaded) {
         return (
             <div className="flex items-center justify-center min-h-screen ">
                 <Loader2 className="h-30 w-10 animate-spin text-gray-600" />
@@ -62,7 +75,7 @@ export default function EnvironmentPage() {
                 <h1 className="text-2xl font-semibold tracking-tight"> Enviornment: {data?.name}</h1>
                 <p className="text-sm text-muted-foreground">Manage variables for this environment</p>
             </div>
-            <VariableTable onaddCallback={()=>fetchEnviornment(true)} key={params.envId} projectId={params.projectId} vars={data.variables} envId={params.envId} />
+            <VariableTable onaddCallback={() => fetchEnviornment(true)} key={params.envId} projectId={params.projectId} vars={data.variables} envId={params.envId} />
         </div>
     )
 }

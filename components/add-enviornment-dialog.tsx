@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@clerk/nextjs"
 import envConfig from "@/envConfig"
 import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 export function AddEnvironmentDialog({
     children,
@@ -59,8 +60,11 @@ export function AddEnvironmentDialog({
                 body: JSON.stringify(body),
             })
 
-            if (!res.ok) {
-                throw new Error(`Failed to ${mode === "edit" ? "update" : "create"} environment`)
+            const data = await res.json()
+            if (res.status === 200) {
+                toast.success(`${data?.message}`)
+            } else {
+                toast.error(`${data?.error || data?.message}`)
             }
             onCreated?.()
             setOpen(false)
@@ -72,7 +76,7 @@ export function AddEnvironmentDialog({
         }
     }
 
-    
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>

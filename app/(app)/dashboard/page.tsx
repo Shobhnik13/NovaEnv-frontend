@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState, useMemo } from "react"
-import { useData } from "@/components/data-provider"
 import { Button } from "@/components/ui/button"
 import { Plus, Box, ListTree, Loader2 } from 'lucide-react'
 import { ProjectCard } from "@/components/project-card"
@@ -108,20 +107,36 @@ export default function DashboardPage() {
     }
 
     const [projects, setProjects] = useState<any>([])
+
     useEffect(() => {
-        if (!isLoaded) return
-        if (isLoaded && !isSignedIn) redirect("/sign-in")
+        const checkProtect = () => {
+            if (!isLoaded) {
+                return (
+                    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+                        <Loader2 className="h-30 w-10 animate-spin text-gray-600" />
+                    </div>
+                )
+            }
+            if (isLoaded && !isSignedIn) {
+                redirect("/sign-in")
+            }
+        }
+        checkProtect()
+    }, [isLoaded, isSignedIn])
+
+    useEffect(() => {
         fetchAll()
-    }, [isLoaded, isSignedIn, user, getToken])
+    }, [user, getToken])
 
 
-    if (!allLoaded) {
+    if (!allLoaded || !isLoaded) {
         return (
             <div className="flex items-center justify-center min-h-screen ">
                 <Loader2 className="h-30 w-10 animate-spin text-gray-600" />
             </div>
         )
     }
+
     return (
         <div className="space-y-6">
             {/* Header */}

@@ -10,6 +10,7 @@ import { AddProjectDialog } from "@/components/add-project-dialog"
 import { useState } from "react"
 import { useAuth } from "@clerk/nextjs"
 import envConfig from "@/envConfig"
+import { toast } from "sonner"
 
 export function ProjectCard({ project, onEdited }: any) {
   const envCount = project?.totalEnvironments
@@ -31,9 +32,13 @@ export function ProjectCard({ project, onEdited }: any) {
         },
       })
 
-      if(res?.ok){
-          onEdited?.()
+      const data = await res.json()
+      if(res.status === 200){
+        toast.success(`${data?.message}`)
+      }else{
+        toast.error(`${data?.error || data?.message}`)
       }
+      onEdited?.()
     } catch (err) {
       console.error(err)
     } finally {

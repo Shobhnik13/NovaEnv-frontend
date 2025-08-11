@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { useData, type Project } from "@/components/data-provider"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@clerk/nextjs"
 import envConfig from "@/envConfig"
 import { Loader2 } from "lucide-react" // Spinner icon
+import { toast } from "sonner"
 
 export function AddProjectDialog({
     children,
@@ -24,7 +24,6 @@ export function AddProjectDialog({
     onEdited?: () => void
 }) {
     const [open, setOpen] = useState(false)
-    const { addProject, updateProject } = useData()
     const [name, setName] = useState(project?.name ?? "")
     const [desc, setDesc] = useState(project?.description ?? "")
     const [loading, setLoading] = useState(false)
@@ -53,6 +52,11 @@ export function AddProjectDialog({
             })
 
             const data = await res.json()
+            if (res.status === 200) {
+                toast.success(`${data?.message}`)
+            } else {
+                toast.error(`${data?.error || data?.message}`)
+            }
             setOpen(false)
             setName("")
             setDesc("")
@@ -80,6 +84,11 @@ export function AddProjectDialog({
             })
 
             const data = await res.json()
+            if (res.status === 200) {
+                toast.success(`${data?.message}`)
+            } else {
+                toast.error(`${data?.error || data?.message}`)
+            }
             setOpen(false)
             setName("")
             setDesc("")
@@ -130,7 +139,7 @@ export function AddProjectDialog({
                                 handleEdit(name.trim(), desc.trim(), project?.projectId)
                             } else {
                                 handleSubmit(name.trim(), desc)
-                            } 
+                            }
                         }}
                     >
                         {loading ? (

@@ -3,15 +3,43 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowRight, Loader2, Sparkles } from 'lucide-react'
 import { GlowBackground } from "@/components/glow-bg"
 import { FeaturesSection } from "@/components/sections/features-section"
 import { HowItWorksSection } from "@/components/sections/how-it-works-section"
 import { ShowcaseSection } from "@/components/sections/showcase-section"
 import { FaqSection } from "@/components/sections/faq-section"
 import { FinalCtaSection } from "@/components/sections/final-cta-section"
+import { useEffect } from "react"
+import { useUser } from "@clerk/nextjs"
+import { redirect } from "next/navigation"
 
 export default function LandingPage() {
+  const { isSignedIn, user, isLoaded } = useUser();
+
+  useEffect(() => {
+    const checkProtect = () => {
+      if (!isLoaded) {
+        return (
+          <div className="flex items-center justify-center min-h-screen bg-gray-50">
+            <Loader2 className="h-30 w-10 animate-spin text-gray-600" />
+          </div>
+        )
+      }
+      if (isLoaded && isSignedIn) {
+        redirect("/dashboard")
+      }
+    }
+    checkProtect()
+  }, [isLoaded, isSignedIn])
+
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-30 w-10 animate-spin text-gray-600" />
+      </div>
+    )
+  }
   return (
     <main className="relative min-h-svh bg-background text-foreground overflow-hidden">
       <GlowBackground />

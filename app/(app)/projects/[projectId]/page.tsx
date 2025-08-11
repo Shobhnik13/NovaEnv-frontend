@@ -1,7 +1,6 @@
 "use client"
 
 import { redirect, useParams, useRouter } from "next/navigation"
-import { useData } from "@/components/data-provider"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Loader2, Plus } from 'lucide-react'
 import { EnvCard } from "@/components/env-card"
@@ -20,7 +19,7 @@ export default function ProjectPage() {
     const [allLoaded, setAllLoaded] = useState(false)
     const [project, setProject] = useState<any>(null)
 
-    const fetchProject = async (silent=false) => {
+    const fetchProject = async (silent = false) => {
         try {
             const token = await getToken()
             const res = await fetch(`${envConfig.projectUrl}/projects/${params.projectId}`, {
@@ -38,16 +37,31 @@ export default function ProjectPage() {
             console.log(error);
         }
     }
+
     useEffect(() => {
-        if (!isLoaded) return
-        if (isLoaded && !isSignedIn) redirect("/sign-in")
+        const checkProtect = () => {
+            if (!isLoaded) {
+                return (
+                    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+                        <Loader2 className="h-30 w-10 animate-spin text-gray-600" />
+                    </div>
+                )
+            }
+            if (isLoaded && !isSignedIn) {
+                redirect("/sign-in")
+            }
+        }
+        checkProtect()
+    }, [isLoaded, isSignedIn])
+
+    useEffect(() => {
         if (!params.projectId) {
             router.push("/dashboard")
         }
         fetchProject()
-    }, [isLoaded, isSignedIn, params.projectId, getToken])
+    }, [params.projectId, getToken])
 
-    if (!allLoaded) {
+    if (!allLoaded || !isLoaded) {
         return (
             <div className="flex items-center justify-center min-h-screen ">
                 <Loader2 className="h-30 w-10 animate-spin text-gray-600" />
@@ -76,7 +90,7 @@ export default function ProjectPage() {
                     <h1 className="text-2xl font-semibold tracking-tight">Project: {project.name}</h1>
                     <p className="text-sm text-muted-foreground">{project.description || "Manage your environments"}</p>
                 </div>
-                <AddEnvironmentDialog projectId={project.projectId} onCreated = {()=>fetchProject(true)}>
+                <AddEnvironmentDialog projectId={project.projectId} onCreated={() => fetchProject(true)}>
                     <Button className="gap-2">
                         <Plus className="size-4" />
                         Add Environment
@@ -104,7 +118,7 @@ export default function ProjectPage() {
                         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
                     >
                         {project.envs.map((e: any) => (
-                            <EnvCard key={e.name} projectId={project.projectId} env={e} onCreated = {()=>fetchProject(true)} />
+                            <EnvCard key={e.name} projectId={project.projectId} env={e} onCreated={() => fetchProject(true)} />
                         ))}
                     </motion.div>
                 )}
