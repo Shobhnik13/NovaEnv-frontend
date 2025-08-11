@@ -13,7 +13,7 @@ export function ShowcaseSection() {
                 transition={{ duration: 0.5 }}
                 className="text-2xl md:text-3xl font-semibold tracking-tight text-center"
             >
-                A sleek dashboard
+                A full stack secrets management platform 
             </motion.h2>
             <motion.p
                 initial={{ opacity: 0, y: 6 }}
@@ -22,7 +22,7 @@ export function ShowcaseSection() {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="mt-2 text-center text-sm text-muted-foreground max-w-2xl mx-auto"
             >
-                Built with shadcn/ui components, Tailwind CSS, and smooth framer-motion transitions.
+            Designed to streamline environment management, so you’ll never waste time hunting for old project variables again.
             </motion.p>
 
             <motion.div

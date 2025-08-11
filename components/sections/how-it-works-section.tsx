@@ -6,17 +6,17 @@ import { PlusCircle, ListTree, Variable } from 'lucide-react'
 const steps = [
     {
         title: "Create a project",
-        description: "Start with a project to group related environments.",
+        description: "Start with creating a project from dashboard.",
         icon: PlusCircle,
     },
     {
         title: "Add environments",
-        description: "Development, Staging, Production — or your own.",
+        description: "Add different enviornments dev, staging, prod — or your own.",
         icon: ListTree,
     },
     {
         title: "Manage variables",
-        description: "Add, edit, mask, and delete with confidence.",
+        description: "Add, edit, mask, and delete variables.",
         icon: Variable,
     },
 ]

@@ -41,7 +41,7 @@ export default function LoginPage() {
                     </Link>
                
                     <h1 className="text-2xl font-bold tracking-tight">Welcome</h1>
-                    <p className="text-sm text-muted-foreground mt-1">Sign in to your account</p>
+                    <p className="text-sm text-muted-foreground mt-1">Sign in to your NovaEnv account</p>
                 </div>
 
                 <Card className="bg-card border-border">

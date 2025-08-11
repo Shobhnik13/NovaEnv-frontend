@@ -8,7 +8,7 @@ const items = [
     {
         title: "Secure by design",
         icon: Shield,
-        description: "Keep secrets safe with clear visibility and controls. Mask and reveal only when needed.",
+        description: "Your secrets are fully encrypted before storage, even we can not access or see what you have stored",
     },
     {
         title: "Projects & environments",
@@ -18,7 +18,7 @@ const items = [
     {
         title: "Effortless workflow",
         icon: Workflow,
-        description: "Add, edit, and delete variables with smooth, accessible interactions.",
+        description: "Fully customisable so you can add, edit and delete your workflows effortlessly.",
     },
     {
         title: "Granular control",
@@ -26,14 +26,14 @@ const items = [
         description: "Toggle visibility, inline edits, and confirmations to prevent mistakes.",
     },
     {
-        title: "Fast & responsive",
+        title: "Fast & Optimized",
         icon: Gauge,
-        description: "Optimized UI with micro-animations for delightful performance.",
+        description: "Optimized performance and design for the best user experience.",
     },
     {
-        title: "Import/Export ready",
+        title: "Bulk Insert/Copy",
         icon: FileDown,
-        description: "Designed for .env import/export and diffs in future iterations.",
+        description: "Copy your entire variables from a file at once, no more adding them one by one. ",
     },
 ]
 
