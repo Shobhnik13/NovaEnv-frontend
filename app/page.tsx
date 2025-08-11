@@ -93,7 +93,7 @@ export default function LandingPage() {
           className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/20 px-3 py-1.5 mb-6 text-xs text-muted-foreground backdrop-blur-sm"
         >
           <Sparkles className="size-3.5 text-zinc-300" aria-hidden />
-          <span>Dark. Sleek. Secure.</span>
+          <span>Secure. Fast. Simple.</span>
         </motion.div>
 
         <motion.h1
@@ -113,8 +113,7 @@ export default function LandingPage() {
           transition={{ duration: 0.5, delay: 0.15 }}
           className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed"
         >
-          The ultimate environment variable management platform. Secure, scalable, and built for modern development
-          workflows.
+        The one stop environment variable management platform. Secure, scalable, and fully customisable.  
         </motion.p>
 
         <motion.div
