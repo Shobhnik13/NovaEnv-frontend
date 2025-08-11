@@ -180,14 +180,14 @@ export default function LandingPage() {
               <span className="text-xs text-muted-foreground ml-2">terminal</span>
             </div>
             <div className="font-mono text-sm text-left">
-              <div className="text-zinc-400">$ novaenv deploy</div>
+              <div className="text-zinc-400">$ novaenv login api-key</div>
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1, duration: 0.5 }}
                 className="text-green-400"
               >
-                ✓ Environment synced
+                ✓ Projects fetching...
               </motion.div>
               <motion.div
                 initial={{ opacity: 0 }}
@@ -195,7 +195,7 @@ export default function LandingPage() {
                 transition={{ delay: 1.5, duration: 0.5 }}
                 className="text-green-400"
               >
-                ✓ Variables encrypted
+                ✓ Variables extracting...
               </motion.div>
             </div>
           </div>
