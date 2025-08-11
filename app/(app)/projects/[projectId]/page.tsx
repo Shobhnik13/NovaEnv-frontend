@@ -86,11 +86,17 @@ export default function ProjectPage() {
     return (
         <div className="space-y-6 mt-4 ">
             <div className="flex items-center justify-between gap-3">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">Project: {project.name}</h1>
-                    <p className="text-sm text-muted-foreground">{project.description || "Manage your environments"}</p>
+                <div className="flex items-center gap-2">
+                    <ArrowLeft
+                        className="size-5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                        onClick={() => router.back()}
+                    />
+                    <div>
+                        <h1 className="text-base md:text-2xl font-semibold tracking-tight">{project.name}</h1>
+                        <p className="text-sm text-muted-foreground">{project.description || "Manage your environments"}</p>
+                    </div>
                 </div>
-                <AddEnvironmentDialog projectId={project.projectId} onCreated={() => fetchProject(true)}>
+                <AddEnvironmentDialog projectId={project.id}>
                     <Button className="gap-2">
                         <Plus className="size-4" />
                         Add Environment

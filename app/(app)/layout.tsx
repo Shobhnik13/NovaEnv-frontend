@@ -14,9 +14,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     </div>
             </SidebarInset>
             {/* Optional floating trigger for mobile when sidebar hidden */}
-            <div className="fixed bottom-4 left-4 z-40 md:hidden">
+            {/* <div className="fixed bottom-4 left-4 z-40 md:hidden">
                 <SidebarTrigger aria-label="Toggle sidebar" />
-            </div>
+            </div> */}
         </SidebarProvider>
     )
 }

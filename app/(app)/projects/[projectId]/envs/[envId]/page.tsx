@@ -71,10 +71,16 @@ export default function EnvironmentPage() {
 
     return (
         <div className="space-y-6 mt-4">
-            <div>
-                <h1 className="text-2xl font-semibold tracking-tight"> Enviornment: {data?.name}</h1>
-                <p className="text-sm text-muted-foreground">Manage variables for this environment</p>
-            </div>
+             <div className="flex items-center gap-2">
+                    <ArrowLeft
+                        className="size-5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                        onClick={() => router.back()}
+                    />
+                    <div>
+                        <h1 className="text-base md:text-2xl font-semibold tracking-tight">{data.name}</h1>
+                        <p className="text-sm text-muted-foreground">{data.description || "Manage your secrets"}</p>
+                    </div>
+                </div>
             <VariableTable onaddCallback={() => fetchEnviornment(true)} key={params.envId} projectId={params.projectId} vars={data.variables} envId={params.envId} />
         </div>
     )
