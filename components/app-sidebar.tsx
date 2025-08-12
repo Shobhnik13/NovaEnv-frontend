@@ -15,7 +15,7 @@ import {
     SidebarRail,
     useSidebar,
 } from "@/components/ui/sidebar"
-import { Home, Key, Loader2, LogOut, X } from "lucide-react"
+import { CommandIcon, Home, Key, Loader2, LogOut, Terminal, X } from "lucide-react"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { useClerk, useUser } from "@clerk/nextjs"
 import { useEffect, useState } from "react"
@@ -106,6 +106,12 @@ export function AppSidebar() {
                                     <Link href="/api-key" aria-label="API Key" onClick={handleNavClick}>
                                         <Key />
                                         <span>API Key</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith("/api-key")}>
+                                    <Link href="/cli" aria-label="CLI Quickstart" onClick={handleNavClick}>
+                                        <Terminal/>
+                                        <span>CLI Quickstart</span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

@@ -43,7 +43,7 @@ export default function LandingPage() {
   return (
     <main className="relative min-h-svh bg-background text-foreground overflow-hidden">
       <GlowBackground />
-      
+
       <section className="relative mx-auto max-w-screen-lg px-6 md:px-8 py-16 md:py-24 min-h-[80svh] flex flex-col items-center justify-center text-center">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
@@ -113,7 +113,7 @@ export default function LandingPage() {
           transition={{ duration: 0.5, delay: 0.15 }}
           className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed"
         >
-        The one stop environment variable management platform. Secure, scalable, and fully customisable.  
+          The one stop environment variable management platform. Secure, scalable, and fully customisable.
         </motion.p>
 
         <motion.div
@@ -152,15 +152,19 @@ export default function LandingPage() {
             </Link>
           </Button>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="inline-flex items-center gap-2 rounded-full border border-border/40 bg-card/10 px-4 py-2 text-sm text-muted-foreground backdrop-blur-sm"
-          >
-            <Package className="size-4 text-zinc-400" />
-            <span>npm package for CLI coming soon</span>
-          </motion.div>
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <div className="inline-flex items-center gap-2 rounded-lg bg-red-50 hover:bg-red-100 border border-red-800 px-4 py-2.5 text-sm font-medium text-red-800 transition-colors cursor-default">
+              <Package className="size-4" />
+              <span>npm i novaenv-cli</span>
+            </div>
+
+            <Button asChild size="sm" variant="outline" className="group bg-transparent">
+              <Link href="/cli" aria-label="CLI Documentation">
+                <Terminal className="mr-2 size-4" />
+                CLI Quickstart
+              </Link>
+            </Button>
+          </div>
         </motion.div>
 
         <motion.div
