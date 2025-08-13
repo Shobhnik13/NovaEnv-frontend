@@ -32,7 +32,9 @@ export default function ProjectPage() {
 
             const data = await res.json()
             setProject(data)
-            setAllLoaded(true)
+            if (silent === false) {
+                setAllLoaded(true)
+            }
         } catch (error) {
             console.log(error);
         }
@@ -96,7 +98,7 @@ export default function ProjectPage() {
                         <p className="text-sm text-muted-foreground">{project.description || "Manage your environments"}</p>
                     </div>
                 </div>
-                <AddEnvironmentDialog projectId={project.id}>
+                <AddEnvironmentDialog projectId={project.projectId} onCreated={() => fetchProject(true)}>
                     <Button className="gap-2">
                         <Plus className="size-4" />
                         Add Environment

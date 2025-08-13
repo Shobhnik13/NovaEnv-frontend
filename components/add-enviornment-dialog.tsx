@@ -63,10 +63,10 @@ export function AddEnvironmentDialog({
             const data = await res.json()
             if (res.status === 200) {
                 toast.success(`${data?.message}`)
+                onCreated?.()
             } else {
                 toast.error(`${data?.error || data?.message}`)
             }
-            onCreated?.()
             setOpen(false)
             setName("")
         } catch (err) {

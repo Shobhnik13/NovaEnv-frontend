@@ -34,7 +34,7 @@ export function ShowcaseSection() {
             >
                 <div className="relative overflow-hidden rounded-lg border border-border/60 bg-gradient-to-b from-zinc-900/50 to-zinc-900/30">
                     <Image
-                        src="/placeholder.svg?height=720&width=1280"
+                        src="/dashboard.png"
                         alt="NovaEnv dashboard preview"
                         width={1280}
                         height={720}
