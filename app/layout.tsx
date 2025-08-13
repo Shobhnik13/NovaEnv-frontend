@@ -3,15 +3,18 @@ import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 import { dark } from '@clerk/themes'
-
+// import faviconImage from '../public/favicon.png'
 import {
   ClerkProvider,
 } from '@clerk/nextjs'
 import { Toaster } from "sonner"
 
 export const metadata: Metadata = {
-  title: "NovaEnv — Environment Variable Manager",
-  description: "Securely manage environment variables across projects",
+  title: "NovaEnv - Environment Variable Manager",
+  description: "Securely manage environment variables across projects via dashboard and CLI",
+  icons: {
+    icon: "./favicon.png",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

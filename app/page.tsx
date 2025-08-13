@@ -72,7 +72,7 @@ export default function LandingPage() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="mb-4"
         >
-          <Link
+          {/* <Link
             href="https://peerlist.io/novaenv"
             target="_blank"
             rel="noopener noreferrer"
@@ -83,7 +83,7 @@ export default function LandingPage() {
               <div className="absolute inset-0 w-2 h-2 rounded-full bg-green-500 animate-ping"></div>
             </div>
             <span>We are live on Peerlist please upvote 👍</span>
-          </Link>
+          </Link> */}
         </motion.div>
 
         <motion.div
