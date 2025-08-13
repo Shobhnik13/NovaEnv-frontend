@@ -108,7 +108,7 @@ export function AppSidebar() {
                                         <span>API Key</span>
                                     </Link>
                                 </SidebarMenuButton>
-                                <SidebarMenuButton asChild isActive={pathname.startsWith("/api-key")}>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith("/cli")}>
                                     <Link href="/cli" aria-label="CLI Quickstart" onClick={handleNavClick}>
                                         <Terminal/>
                                         <span>CLI Quickstart</span>
