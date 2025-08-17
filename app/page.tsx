@@ -153,9 +153,13 @@ export default function LandingPage() {
           </Button>
 
           <div className="flex flex-col sm:flex-row items-center gap-3">
+              <Link href="https://www.npmjs.com/package/novaenv-cli"
+            target="_blank"
+            rel="noopener noreferrer">
             <div className="inline-flex items-center gap-2 rounded-lg bg-red-50 hover:bg-red-100 border border-red-800 px-4 py-2.5 text-sm font-medium text-red-800 transition-colors cursor-default">
               <Package className="size-4" />
               <span>npm i novaenv-cli</span>
+              </Link>
             </div>
 
             <Button asChild size="sm" variant="outline" className="group bg-transparent">
