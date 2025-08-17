@@ -159,8 +159,8 @@ export default function LandingPage() {
             <div className="inline-flex items-center gap-2 rounded-lg bg-red-50 hover:bg-red-100 border border-red-800 px-4 py-2.5 text-sm font-medium text-red-800 transition-colors cursor-default">
               <Package className="size-4" />
               <span>npm i novaenv-cli</span>
-              </Link>
             </div>
+              </Link>
 
             <Button asChild size="sm" variant="outline" className="group bg-transparent">
               <Link href="/cli" aria-label="CLI Documentation">
